@@ -94,11 +94,11 @@ module.exports = {
     new OptimizeCssAssetsWebpackPlugin()
   ],
   mode: "development",
-  devServer: {
-    contentBase: join(__dirname, 'dist'),
-    compress: true,
-    port: 3009,
-    open: true,
-    hot: true,
-  }
+  // devServer: {
+  //   contentBase: join(__dirname, 'dist'),
+  //   compress: true,
+  //   port: 3009,
+  //   open: true,
+  //   hot: true,
+  // }
 }
