@@ -1,104 +1,122 @@
-const { join } = require('path')
+const path = require('path')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
-const OptimizeCssAssetsWebpackPlugin = require('optimize-css-assets-webpack-plugin') //压缩css
+const CssMinimizerWebpackPlugin = require("css-minimizer-webpack-plugin"); //压缩css
+const ReactRefreshWebpackPlugin = require('@pmmmwh/react-refresh-webpack-plugin');
 
 process.env.NODE_ENV = 'development'
+
+const getStyleLoader = (per) => ([
+  // 将css样式拆分成单独的文件
+  MiniCssExtractPlugin.loader,
+  'css-loader',
+  {
+    // 处理css兼容性问题
+    // 配合package.json中browserslist来指定兼容性
+    loader: "postcss-loader",
+    options: {
+      postcssOptions: {
+        plugins: ["postcss-preset-env"],
+      },
+    },
+  },
+  per
+].filter(Boolean))
 
 module.exports = {
   entry: "./src/index.js",
   output: {
-    filename: 'build.js',
-    path: join(__dirname, 'dist'),
-    publicPath: '/'
+    path: undefined,
+    filename: "static/js/[name].js",
+    chunkFilename: "static/js/[name].chunk.js",
+    assetModuleFilename: "static/media/[hash:10][ext][query]",
   },
   module: {
     rules: [
       {
         test: /\.css$/,
-        use: [
-          // 将css样式拆分成单独的文件
-          MiniCssExtractPlugin.loader,
-          'css-loader',
-          {
-            //CSS样式兼容性处理
-            loader: "postcss-loader",
-            options: {
-              ident: "postcss",
-              plugins: () => [
-                //post-css插件
-                require('postcss-preset-env')()
-              ]
+        use: getStyleLoader()
+      },
+      {
+        test: /\.less$/,
+        use: getStyleLoader({
+          loader: 'less-loader', 
+          options:{
+            lessOptions: {
+              javascriptEnabled: true
             }
           }
-        ]
+        })
       },
       {
-        test: /\.(png|jpg|gif)$/,
-        loader: "url-loader",
+        test: /\.(png|jpe?g|gif|svg|webp)$/,
+        type: 'asset',
+        parser: {
+          dataUrlCondition: {
+            maxSize: 8 * 1024,
+          },
+        },
+        generator: {
+          // 将图片文件输出到 static/imgs 目录中
+          // 将图片文件命名 [hash:8][ext][query]
+          // [hash:8]: hash值取8位
+          // [ext]: 使用之前的文件扩展名
+          // [query]: 添加之前的query参数
+          filename: "static/imgs/[hash:8][ext][query]",
+        },
+      },
+      {
+        test: /\.jsx?$/,
+        include: path.resolve(__dirname, 'src'),
+        loader: 'babel-loader',
         options: {
-          limit: 8 * 1024,
-          esModule: false
+          cacheDirectory: true,
+          cacheCompression: false,
+          plugins: [
+            "react-refresh/babel", // 激活js的HMR
+          ]
         }
       },
-      {
-        test: /\.html$/,
-        loader: "html-loader"
-      },
-      {
-        test: /\.js$/,
-        enforce: 'pre',
-        exclude: /node_modules/,
-        // 构建时使用eslint代码检查
-        loader: "eslint-loader",
-        options: {
-          fix: true
-        }
-      },
-      // {
-      //   test: /\.js$/,
-      //   exclude: /node_modules/,
-      //   loader: "babel-loader",
-      //   options: {
-      //     presets: [
-      //       [
-      //         "@babel/preset-env",
-      //         {
-      //           //按需加载
-      //           useBuiltIns: 'usage',
-      //           corejs: {
-      //             version: 3
-      //           },
-      //           targets: {
-      //             chrome: '60',
-      //             firefox: '60',
-      //             ie: '9',
-      //             safari: '10',
-      //             edge: '17'
-      //           }
-      //         }
-      //       ]
-      //     ]
-      //   }
-      // }
     ]
   },
   plugins: [
     new HtmlWebpackPlugin({
-      template: './src/index.html'
+      template: path.resolve(__dirname, 'public/index.html')
     }),
+    //将css文件打包成单独文件
     new MiniCssExtractPlugin({
-      filename: "css/built.css"
+      filename: "css/[name].[contenthash:10].css"
     }),
     //压缩css文件
-    new OptimizeCssAssetsWebpackPlugin()
+    new CssMinimizerWebpackPlugin(),
+    // 激活js的HMR
+    new ReactRefreshWebpackPlugin(), 
+    //eslint配置
+    // new EslintWebpackPlugin({
+    //   context: path.resolve(__dirname, "../src"),
+    //   exclude: "node_modules",
+    //   cache: true,
+    //   cacheLocation: path.resolve(__dirname, "../node_modules/.cache/.eslintcache"),
+    // }),
   ],
+  optimization: {
+    splitChunks: {
+      chunks: "all",
+    },
+    runtimeChunk: {
+      name: (entrypoint) => `runtime~${entrypoint.name}.js`,
+    },
+  },
+  resolve: {
+    // 自动补全文件扩展名
+    extensions: [".jsx", ".js", ".json"],
+  },
+  devtool: "cheap-module-source-map",
   mode: "development",
-  // devServer: {
-  //   contentBase: join(__dirname, 'dist'),
-  //   compress: true,
-  //   port: 3009,
-  //   open: true,
-  //   hot: true,
-  // }
+  devServer: {
+    host: '127.0.0.1',
+    port: 3001,
+    hot: true,
+    historyApiFallback: true
+  }
 }
