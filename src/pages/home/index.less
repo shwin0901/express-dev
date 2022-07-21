@@ -1,0 +1,25 @@
+.container {
+  width: 280px;
+  background-color: #fff;
+  box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.3);
+  padding: 16px;
+
+  .title {
+    display: flex;
+    justify-content: space-between;
+  }
+}
+
+.container-ellipsis {
+  // white-space: nowrap;
+  // text-overflow: ellipsis;
+  // overflow: hidden;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  /* 设置对其模式 */
+  -webkit-box-orient: vertical;
+  /* 设置多行行树 */
+  // -webkit-line-clamp: 2;
+}
