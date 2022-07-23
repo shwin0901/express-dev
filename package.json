@@ -12,10 +12,13 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@babel/plugin-proposal-decorators": "^7.18.9",
     "antd": "^4.21.6",
     "axios": "^0.27.2",
     "cheerio": "^1.0.0-rc.11",
     "express": "^4.18.1",
+    "mobx": "^6.6.1",
+    "mobx-react": "^7.5.2",
     "mysql": "^2.18.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",

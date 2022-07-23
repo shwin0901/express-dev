@@ -3,4 +3,12 @@ module.exports = {
   // babel-preset-react-app
   presets: ["react-app"],
   // presets: ["@babel/preset-env"],
+  plugins: [
+    [
+      "@babel/plugin-proposal-decorators",
+      {
+        "legacy": true
+      }
+    ]
+  ]
 };
