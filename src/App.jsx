@@ -1,9 +1,17 @@
 import React from 'react'
 import { Outlet, Link } from 'react-router-dom';
 import { Layout, Menu } from 'antd';
+import { observable, action } from 'mobx'
 import './index.less'
 
 const { Header, Content, Footer, Sider } = Layout;
+
+class Store{
+  @observable count = 0
+
+}
+
+
 
 const App = () => {
   return (

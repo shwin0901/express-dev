@@ -4,6 +4,8 @@ import { BrowserRouter, Routes } from 'react-router-dom'
 import RouteElement from './routes'
 import "antd/dist/antd.less";
 
+import "./mobx/observable"
+
 function add(x, y) {
   return x * y
 }
